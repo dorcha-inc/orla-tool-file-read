@@ -1,0 +1,13 @@
+name: file-read
+version: 0.1.0
+description: Read and return the contents of a file
+entrypoint: bin/file-read.py
+author: dorcha-inc
+license: MIT
+repository: https://github.com/dorcha-inc/orla-tool-file-read
+keywords:
+  - file
+  - read
+  - filesystem
+  - io
+
