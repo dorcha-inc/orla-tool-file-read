@@ -5,7 +5,9 @@ Provides comprehensive file and directory operations
 """
 
 import argparse
+import codecs
 import json
+import os
 import shutil
 import sys
 from argparse import Namespace
@@ -13,8 +15,29 @@ from pathlib import Path
 from typing import Any, Dict
 
 
+def decode_unicode_path(path: str) -> str:
+    """Decode Unicode escape sequences (e.g., \\u202f) that might come from JSON.
+    Also expands shell-style paths like ~ and $HOME, and tries to find files with
+    Unicode characters if the path with regular spaces doesn't exist.
+    """
+    # Expand shell-style paths (~ and environment variables)
+    path = os.path.expanduser(path)  # Expands ~ to home directory
+    path = os.path.expandvars(path)  # Expands $VAR and ${VAR} environment variables
+
+    try:
+        # Try to decode if it looks like it has escape sequences
+        if "\\u" in path:
+            path = codecs.decode(path, "unicode_escape")
+    except (UnicodeDecodeError, ValueError):
+        # If decoding fails, continue with original path
+        pass
+
+    return path
+
+
 def read_file(path: str) -> Dict[str, Any]:
     """Read file contents"""
+    path = decode_unicode_path(path)
     file_path = Path(path)
 
     if not file_path.exists():
@@ -39,6 +62,7 @@ def read_file(path: str) -> Dict[str, Any]:
 
 def write_file(path: str, content: str, create_dirs: bool = False) -> Dict[str, Any]:
     """Write file contents"""
+    path = decode_unicode_path(path)
     file_path = Path(path)
 
     if create_dirs:
@@ -55,6 +79,7 @@ def write_file(path: str, content: str, create_dirs: bool = False) -> Dict[str, 
 
 def list_directory(path: str, recursive: bool = False) -> Dict[str, Any]:
     """List directory contents"""
+    path = decode_unicode_path(path)
     dir_path = Path(path)
 
     if not dir_path.exists():
@@ -97,6 +122,7 @@ def list_directory(path: str, recursive: bool = False) -> Dict[str, Any]:
 
 def path_exists(path: str) -> Dict[str, Any]:
     """Check if path exists"""
+    path = decode_unicode_path(path)
     file_path = Path(path)
     exists = file_path.exists()
 
@@ -142,6 +168,7 @@ def get_stat(path: str) -> Dict[str, Any]:
 
 def make_directory(path: str, parents: bool = False) -> Dict[str, Any]:
     """Create directory"""
+    path = decode_unicode_path(path)
     dir_path = Path(path)
 
     if dir_path.exists():
@@ -171,6 +198,7 @@ def make_directory(path: str, parents: bool = False) -> Dict[str, Any]:
 
 def remove_path(path: str, recursive: bool = False) -> Dict[str, Any]:
     """Remove file or directory"""
+    path = decode_unicode_path(path)
     file_path = Path(path)
 
     if not file_path.exists():
@@ -201,6 +229,8 @@ def remove_path(path: str, recursive: bool = False) -> Dict[str, Any]:
 
 def move_path(source: str, dest: str) -> Dict[str, Any]:
     """Move or rename file/directory"""
+    source = decode_unicode_path(source)
+    dest = decode_unicode_path(dest)
     source_path = Path(source)
     dest_path = Path(dest)
 
@@ -218,6 +248,8 @@ def move_path(source: str, dest: str) -> Dict[str, Any]:
 
 def copy_path(source: str, dest: str, recursive: bool = False) -> Dict[str, Any]:
     """Copy file or directory"""
+    source = decode_unicode_path(source)
+    dest = decode_unicode_path(dest)
     source_path = Path(source)
     dest_path = Path(dest)
 
