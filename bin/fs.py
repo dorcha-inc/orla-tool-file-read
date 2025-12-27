@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 -u
 """
 File system tool for orla
 Provides comprehensive file and directory operations
@@ -327,17 +327,32 @@ def main():
     parser.add_argument("--source", help="Source path (for mv, cp)")
     parser.add_argument("--dest", help="Destination path (for mv, cp)")
     parser.add_argument("--content", help="Content to write (for write)")
+
+    # Boolean arguments that accept true/false as strings (for MCP compatibility)
+    def str_to_bool(v):
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            return v.lower() in ("true", "yes", "1", "on")
+        raise argparse.ArgumentTypeError(f"Boolean value expected, got: {v}")
+
     parser.add_argument(
         "--recursive",
-        action="store_true",
+        type=str_to_bool,
+        default=False,
         help="Recursive operation (for list, rm, cp)",
     )
     parser.add_argument(
-        "--parents", action="store_true", help="Create parent directories (for mkdir)"
+        "--parents",
+        type=str_to_bool,
+        default=False,
+        help="Create parent directories (for mkdir)",
     )
     parser.add_argument(
         "--create-dirs",
-        action="store_true",
+        dest="create_dirs",
+        type=str_to_bool,
+        default=False,
         help="Create parent directories (for write)",
     )
 
@@ -366,6 +381,7 @@ def main():
 
     # Output result as JSON
     print(json.dumps(result, indent=2))
+    sys.stdout.flush()  # Ensure output is flushed before exit
 
     # Exit with error code if operation failed
     if not result.get("success", False):

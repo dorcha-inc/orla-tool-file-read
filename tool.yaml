@@ -1,6 +1,14 @@
 name: fs
 version: 0.2.0
-description: Comprehensive file system operations tool for reading, writing, listing, and managing files and directories
+description: |
+  Comprehensive file system operations tool. 
+  
+  REQUIRED: Always specify the 'operation' parameter (one of: read, write, list, exists, stat, mkdir, rm, mv, cp).
+  
+  Examples:
+  - To list a directory: {"operation": "list", "path": "/path/to/dir"}
+  - To read a file: {"operation": "read", "path": "/path/to/file"}
+  - To check if path exists: {"operation": "exists", "path": "/path"}
 entrypoint: bin/fs.py
 author: dorcha-inc
 license: MIT
