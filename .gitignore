@@ -13,7 +13,8 @@
 
 # Output of the go coverage tool
 *.out
-coverage.*
+coverage.out
+coverage.html
 *.coverprofile
 profile.cov
 
